@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import { getMovies, IGetMoviesResult } from "../api";
+import useWindowDimensions from "../Components/useWidowDimensions";
 import { makeImagePath } from "../utils";
 
 const Wrapper = styled.div`
@@ -62,18 +63,6 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   }
 `;
 
-const rowVariants: Variants = {
-  hidden: {
-    x: window.outerWidth + 369,
-  },
-  visible: {
-    x: 0,
-  },
-  exit: {
-    x: -window.outerWidth - 369,
-  },
-};
-
 const BoxVariants: Variants = {
   normal: {
     scale: 1,
@@ -88,10 +77,10 @@ const BoxVariants: Variants = {
     },
   },
 };
-
 const offset = 6;
 
 function Home() {
+  const width = useWindowDimensions();
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
     getMovies
@@ -126,10 +115,9 @@ function Home() {
           <Slider>
             <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
               <Row
-                variants={rowVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                initial={{ x: width }}
+                animate={{ x: 0 }}
+                exit={{ x: -width }}
                 transition={{ type: "tween", duration: 1 }}
                 key={index}
               >
