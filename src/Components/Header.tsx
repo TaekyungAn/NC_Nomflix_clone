@@ -6,7 +6,8 @@ import {
   Variants,
 } from "framer-motion";
 import { useState } from "react";
-import { Link, useMatch } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Nav = styled(motion.nav)`
@@ -57,7 +58,7 @@ const Item = styled.li`
   }
 `;
 
-const Search = styled.span`
+const Search = styled.form`
   color: white;
   display: flex;
   align-items: center;
@@ -100,6 +101,11 @@ const logoVariants: Variants = {
     },
   },
 };
+
+interface IFrom {
+  keyword: string;
+}
+
 function Header() {
   const [serchOpen, setSerchOpen] = useState(false);
   const homeMatch = useMatch("/");
@@ -113,6 +119,7 @@ function Header() {
       inputAnimation.start({
         scaleX: 0,
       });
+      setFocus("keyword");
     } else {
       inputAnimation.start({ scaleX: 1 });
     }
@@ -127,6 +134,12 @@ function Header() {
       navAnimation.start("top");
     }
   });
+  const navigate = useNavigate();
+  const { register, handleSubmit, setFocus } = useForm<IFrom>();
+  const onValid = (data: IFrom) => {
+    console.log(data);
+    navigate(`search?keyword=${data.keyword}`);
+  };
 
   const navVariants: Variants = {
     scroll: {
@@ -163,7 +176,7 @@ function Header() {
         </Items>
       </Col>
       <Col>
-        <Search>
+        <Search onSubmit={handleSubmit(onValid)}>
           <motion.svg
             onClick={toggleOpenSerch}
             animate={{ x: serchOpen ? -210 : 0 }}
@@ -179,6 +192,7 @@ function Header() {
             ></path>
           </motion.svg>
           <Input
+            {...register("keyword", { required: true, minLength: 2 })}
             animate={inputAnimation}
             transition={{ type: "linear" }}
             placeholder="Serch for movie or tv show..."
